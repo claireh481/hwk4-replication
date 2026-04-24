@@ -1,5 +1,5 @@
 # hwk4 — Hospital Pricing & Medicare Pay-for-Performance
-This project uses R to study how Medicare penalty programs (HRRP and VBP) affected hospital prices, drawing on HCRIS cost report data. The empirical strategy moves from simple OLS to instrumental variables to address the endogeneity of penalty status.
+This homework studies how Medicare penalty programs (HRRP and VBP) affected hospital prices, drawing on HCRIS cost report data. The empirical strategy moves from simple OLS to instrumental variables to address the endogeneity of penalty status.
 
 ## How the Folder Is Organized
 
