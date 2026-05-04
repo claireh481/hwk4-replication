@@ -1,0 +1,60 @@
+---
+title: "ECON 470 Peer Review"
+subtitle: "Spring 2026"
+author: "Claire Hamilton"
+format:
+  pdf:
+    output-file: "hamilton-c-peer-review"
+    output-ext:  "pdf"
+    header-includes:
+      - \usepackage{float}
+      - \floatplacement{table}{H}
+---
+
+## Question 1: Code Review and Efficiency (10 points): Are there any parts of the code that seem inefficient or redundant? How could these sections be optimized for better performance or clarity?
+
+Overall, Sophie's code is quite efficient and does not include very many redundancies. The main inefficiency I found was not in answering the questions themselves, but rather in the construction of the regression tables to display the results. For example, the same formatting function fmt_p() is defined 3 times (questions 6, 8 and 9), and the code extracts coefficients, p-values, observations, and R-squared values manually for each model. This makes the code longer and increases the risk of errors such as extracting the wrong value.
+
+A more efficient approach could be to create a reusable helper function that takes a model and a list of variables, then returns the coefficient and p-value rows automatically. This would avoid repeating very similar lines of code for OLS 1, OLS 2, OLS 3, etc. The table styling code is also repeated across questions, so that could be turned into a reusable table-formatting function. The IV section (question 9) is more efficient because it uses get_coef() and get_p(), but the OLS section (question 6) could use the same approach. Overall, the main optimization would be to minimize manual table construction and use helper functions or a package like modelsummary or stargazer to generate regression tables more automatically. This would make the code shorter and reduce the risk of errors like extracting the wrong coefficient or p-value.
+
+\newpage
+
+## Question 2: Comparison of Results (10 points): How well do their results compare with your own? Are there any areas where the two analyses are particularly different?
+
+Overall, mine and Sophie's results are very similar in the data summary questions but slightly different for the regression/IV questions. For Questions 1–3, our outputs are almost identical, with only very minor differences (e.g. small differences in counts for certain years), which likely come from slightly different methods of data cleaning/handling missing values. These differences are minor and do not affect the overall trends/conclusions.
+
+In Question 4, both analyses show similar trends in estimated prices, but the distributions are slightly different due to different ways of handling outliers. My code uses specific filters (e.g. restricting to price <= 100000 and price_denom >= 100), while Sophie's code limits the distribution using percentile cutoffs. This leads to slightly different ranges in the plots (mine going up to 50,000 dollars while hers only goes up to 30,000 dollars), but both show a general upward trend in estimated prices with the median price being around 10,000 dollars.
+
+Some slightly larger differences show up in Questions 5–9. In Question 5, while both of our analyses show an increase in the share of penalized hospitals over time that levels off in later years, the magnitude differs substantially. Her graph shows an increase from about 25% in 2012 to around 70% in 2019, while mine shows an increase from around 15% to 45%. This is caused by differences in how we define a penalty, with Sophie defining it as hvbp_payment - hrrp_payment < 0, whereas I define it using hrrp_payment > 0 | hvbp_payment < 0. Sophie's definition of a penalty in this question makes more sense and is more straightforward/requires fewer lines of code. While our graphs show the same trend, the scale of hers is more correct than mine.
+
+In Questions 6–8, the results differ due to how we define net penalty. Since I defined penalty as a positive dollar value while she defined it as negative, our coefficient estimates have opposite signs, and our Question 7 graphs are flipped. In the OLS results (Question 6) and the first-stage relationship (Question 8), our coefficients are opposite signs but similar in magnitude, indicating that we found similar relationships but merely differed in whether we defined penalty as a positive or negative dollar value.
+
+However, in Question 9, both the sign and statistical significance of the IV estimates differ. The sign difference again comes from how we each defined net penalty, but the difference in significance is likely due to how we each handled outliers in earlier steps (her using percentile cutoffs while I used specific value cutoffs). My results show a statistically significant positive effect of net penalties on price changes, while Sophie's are smaller and not significant, indicating that the conclusions are quite sensitive to data cleaning choices.
+
+Overall, the analyses are similar in terms of general trends, but differences in variable definitions and data cleaning (especially dealing with outliers) caused some differences in the magnitude of our ATEs for the later questions.
+
+\newpage
+
+## Question 3: Replicability and Documentation (10 points): Are you able to clone your peer’s repository and replicate their results?
+
+Yes, I was easily able to clone Sophie's repository and replicate her results using the git clone function. The only extra step I had to take was creating the data/output folder in the cloned repository since this folder was not under version control due to the size of the data. After creating this data output folder, I did not have to update any of the file paths in the code. I simply ran her submission1 code (which included her data build), then ran submissions 2 and 3 with no issues.
+
+\newpage
+
+## Question 4: Diagnosing Replication (10 points): If you were unable to replicate their results using their code, what do you think is the central problem? If you were able to replicate, are there things that could have been changed (e.g., code structure, documentation, commenting, etc) that would have made it easier?
+
+I was able to replicate Sophie's results using her code very easily. The only minor issue I had was that when I first looked at her repository structure, I was confused where she built the dataset because her repository did not include a data-build folder. However, after reading through her README for homework 4, I realized that she built the data within her submission 1 folder. I think that for clarity and organizational purposes, it could make more sense to have a separate data-build folder rather than indluding this code in submission 1. However, I appreciate that her README was very detailed and stated that the data build was part of her submission 1 code.
+
+Aditionally, some of her questions (e.g. 4 and 5) did not include any comments, which could have helped me more quickly understand what the code was doing. However, these questions were fairly straightforward and did not require a lot of code, so it was pretty easy to understand without comments.
+
+\newpage
+
+## Question 5: Final Thoughts (10 points): How might you update your own code based on your review of your peer’s work?
+
+Reviewing Sophie's code made me realize some inefficiencies and reundancies in my own analysis. Based on her code, I would update my own code to make it less repetitive and easier to follow. In my analysis, I create different sub-datasets (analysis_data, price_change_df, penalty_2012_df, pre_controls_df, and reg_df) for different questions. Because of this, my code is substantially longer than Sophie's code for several questions (e.g. questions 6-8). Her code shows that once the final merged dataset is created, the regression and plotting sections can be much more concise and don't need to create a new dataset each time.
+
+For example, In Question 6, I create multiple intermediate datasets before ending with reg_df, but I don’t clearly note that this is my final dataset. I could improve clarity by adding a comment noting that reg_df is the main dataset for all regressions/plots, and then reuse it in later questions instead of recreating new datasets (similar to Sophie’s merged_data). This would make the code more concise and easier to follow.
+
+In Question 7, my code recreates a new dataset scatter_df from final_data, even though I already created reg_df in Question 6 with mean_mcare_discharges_pre and net_penalty_2012. To make this more efficient, I could revise the plot to use reg_df directly. This would avoid repeating the filtering, grouping, and summarizing steps.
+
+Overall, I would revise my code by reusing datasets I already created, adding clearer comments to identify the purpose of each dataset, and avoiding repeated data cleaning steps across questions. Sophie's code helped me realize that my work could be more efficient while still achieving the same goal.
